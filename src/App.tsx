@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { 
   ChakraProvider, 
   Box, 
@@ -15,7 +15,8 @@ import {
   Tooltip,
   useToast,
   useColorModeValue,
-  Progress
+  Progress,
+  useBreakpointValue
 } from '@chakra-ui/react'
 import { FiSun, FiMoon, FiTrash2, FiDownload, FiCopy } from 'react-icons/fi'
 
@@ -74,6 +75,7 @@ const App: React.FC = () => {
   const [isSyncing, setIsSyncing] = useState(false)
   const { colorMode, toggleColorMode } = useColorMode()
   const toast = useToast()
+  const isMobile = useBreakpointValue({ base: true, md: false })
 
   // 背景和文字颜色
   const headerBg = useColorModeValue('blue.500', 'blue.600')
@@ -167,7 +169,7 @@ const App: React.FC = () => {
     }
   }
 
-  const handleSend = async () => {
+  const handleSend = useCallback(async () => {
     if (!input.trim() || isLoading) return
     
     const newMessage: Message = {
@@ -196,7 +198,15 @@ const App: React.FC = () => {
         })
       })
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
       const data = await response.json()
+      if (!data.choices?.[0]?.message?.content) {
+        throw new Error('无效的响应格式')
+      }
+
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: data.choices[0].message.content,
@@ -209,7 +219,6 @@ const App: React.FC = () => {
       console.error('API 请求失败:', error)
       const errorMessage = error instanceof Error ? error.message : '发送消息失败'
       
-      // 添加错误消息
       const errorMsg: Message = {
         id: (Date.now() + 1).toString(),
         content: '抱歉，消息发送失败，请重试',
@@ -224,11 +233,21 @@ const App: React.FC = () => {
         description: errorMessage,
         status: 'error',
         duration: 3000,
+        isClosable: true,
+        position: 'top'
       })
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [input, isLoading, toast])
+
+  // 处理键盘事件
+  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSend()
+    }
+  }, [handleSend])
 
   return (
     <ChakraProvider theme={theme}>
@@ -269,7 +288,7 @@ const App: React.FC = () => {
         {/* 主要内容 */}
         <Flex 
           py={4} 
-          px={6} 
+          px={isMobile ? 2 : 6} 
           bg={headerBg}
           color="white" 
           alignItems="center" 
@@ -282,34 +301,38 @@ const App: React.FC = () => {
             : 'rgba(49, 130, 206, 0.8)'}
         >
           <Flex alignItems="center" gap={2}>
-            <Text fontSize="2xl" fontWeight="bold">先问AI</Text>
-            <Text fontSize="md" opacity={0.9}>| 遇事困难？先问AI</Text>
+            <Text fontSize={isMobile ? "xl" : "2xl"} fontWeight="bold">先问AI</Text>
+            {!isMobile && <Text fontSize="md" opacity={0.9}>| 遇事困难？先问AI</Text>}
           </Flex>
           
           <Flex gap={2}>
-            <Tooltip label={`已缓存 ${messages.length} 条消息`}>
-              <IconButton
-                aria-label="复制最后一条消息"
-                icon={<FiCopy />}
-                variant="ghost"
-                color="white"
-                onClick={copyLastMessage}
-                isDisabled={messages.length === 0}
-                _hover={{ bg: buttonHoverBg }}
-              />
-            </Tooltip>
-            
-            <Tooltip label="导出聊天记录">
-              <IconButton
-                aria-label="导出聊天记录"
-                icon={<FiDownload />}
-                variant="ghost"
-                color="white"
-                onClick={exportMessages}
-                isDisabled={messages.length === 0}
-                _hover={{ bg: buttonHoverBg }}
-              />
-            </Tooltip>
+            {!isMobile && (
+              <>
+                <Tooltip label={`已缓存 ${messages.length} 条消息`}>
+                  <IconButton
+                    aria-label="复制最后一条消息"
+                    icon={<FiCopy />}
+                    variant="ghost"
+                    color="white"
+                    onClick={copyLastMessage}
+                    isDisabled={messages.length === 0}
+                    _hover={{ bg: buttonHoverBg }}
+                  />
+                </Tooltip>
+                
+                <Tooltip label="导出聊天记录">
+                  <IconButton
+                    aria-label="导出聊天记录"
+                    icon={<FiDownload />}
+                    variant="ghost"
+                    color="white"
+                    onClick={exportMessages}
+                    isDisabled={messages.length === 0}
+                    _hover={{ bg: buttonHoverBg }}
+                  />
+                </Tooltip>
+              </>
+            )}
 
             <Tooltip label="清空聊天记录">
               <IconButton
@@ -320,6 +343,7 @@ const App: React.FC = () => {
                 onClick={clearMessages}
                 isDisabled={messages.length === 0}
                 _hover={{ bg: buttonHoverBg }}
+                size={isMobile ? "sm" : "md"}
               />
             </Tooltip>
 
@@ -331,6 +355,7 @@ const App: React.FC = () => {
                 color="white"
                 onClick={toggleColorMode}
                 _hover={{ bg: buttonHoverBg }}
+                size={isMobile ? "sm" : "md"}
               />
             </Tooltip>
           </Flex>
@@ -356,20 +381,38 @@ const App: React.FC = () => {
           backdropFilter="blur(10px)"
           backgroundColor={colorMode === 'light' ? 'whiteAlpha.800' : 'blackAlpha.500'}
           borderRadius="xl"
-          my={4}
+          my={isMobile ? 2 : 4}
+          p={isMobile ? 2 : 4}
           boxShadow="lg"
         >
-          <VStack flex="1" spacing={4} align="stretch" overflowY="auto">
+          <VStack 
+            flex="1" 
+            spacing={4} 
+            align="stretch" 
+            overflowY="auto" 
+            css={{
+              '&::-webkit-scrollbar': {
+                width: '4px',
+              },
+              '&::-webkit-scrollbar-track': {
+                width: '6px',
+              },
+              '&::-webkit-scrollbar-thumb': {
+                background: colorMode === 'light' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)',
+                borderRadius: '24px',
+              },
+            }}
+          >
             {messages.map((msg) => (
               <Flex 
                 key={msg.id} 
                 justify={msg.isUser ? 'flex-end' : 'flex-start'}
               >
                 <Box
-                  maxW="70%"
+                  maxW={isMobile ? "85%" : "70%"}
                   bg={msg.isUser ? userMessageBg : messageBg}
                   color={msg.isUser ? 'white' : (colorMode === 'light' ? 'gray.800' : 'white')}
-                  p={4}
+                  p={3}
                   borderRadius="2xl"
                   shadow="md"
                   backdropFilter="blur(10px)"
@@ -377,7 +420,7 @@ const App: React.FC = () => {
                     ? (colorMode === 'light' ? 'blue.500' : 'blue.400') 
                     : (colorMode === 'light' ? 'white' : 'gray.700')}
                 >
-                  <Text>{msg.content}</Text>
+                  <Text fontSize={isMobile ? "sm" : "md"}>{msg.content}</Text>
                   {msg.status === 'error' && (
                     <Text 
                       fontSize="xs" 
@@ -392,15 +435,15 @@ const App: React.FC = () => {
             ))}
           </VStack>
 
-          <Flex mt={4} gap={3}>
+          <Flex mt={4} gap={2}>
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+              onKeyPress={handleKeyPress}
               placeholder="输入消息..."
               disabled={isLoading}
               bg={inputBg}
-              size="lg"
+              size={isMobile ? "md" : "lg"}
               borderRadius="xl"
               _hover={{ bg: inputBg }}
               _focus={{ bg: inputBg, borderColor: 'blue.400', boxShadow: '0 0 0 1px var(--chakra-colors-blue-400)' }}
@@ -409,8 +452,8 @@ const App: React.FC = () => {
               colorScheme="blue"
               onClick={handleSend}
               isLoading={isLoading}
-              px={8}
-              size="lg"
+              px={isMobile ? 4 : 8}
+              size={isMobile ? "md" : "lg"}
               borderRadius="xl"
               _hover={{ transform: 'translateY(-1px)' }}
               transition="all 0.2s"
