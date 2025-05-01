@@ -6,6 +6,7 @@ import {
   VStack, 
   useToast,
   Avatar,
+  Text,
   IconButton,
   useColorModeValue,
   Spinner,
@@ -222,7 +223,7 @@ const Chat: React.FC = () => {
             colorScheme="blue"
             leftIcon={colorMode === 'light' ? <FiMoon /> : <FiSun />}
           >
-            {colorMode === 'light' ? '深色模式' : '浅色模式'}
+            <Text>{colorMode === 'light' ? '深色模式' : '浅色模式'}</Text>
           </Button>
         </Box>
 
