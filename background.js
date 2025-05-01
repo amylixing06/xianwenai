@@ -14,6 +14,12 @@ chrome.runtime.onInstalled.addListener(() => {
     console.log('扩展已安装');
 });
 
+// 监听扩展图标点击事件
+chrome.action.onClicked.addListener((tab) => {
+    // 打开xianwenai.com网站
+    chrome.tabs.create({ url: 'https://xianwenai.com' });
+});
+
 // 处理来自popup的消息
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'saveHistory') {
@@ -418,10 +424,4 @@ chrome.tabs.onRemoved.addListener((tabId) => {
     delete currentAnswers[tabId];
     delete activePorts[tabId];
     delete completedAnswers[tabId];
-});
-
-// 监听插件图标点击事件
-chrome.action.onClicked.addListener((tab) => {
-  // 打开网站
-  chrome.tabs.create({ url: 'https://xianwenai.com' });
 }); 
