@@ -6,7 +6,6 @@ import {
   VStack, 
   useToast,
   Avatar,
-  Text,
   IconButton,
   useColorModeValue,
   Spinner,
