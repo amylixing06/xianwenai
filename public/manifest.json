@@ -1,0 +1,17 @@
+{
+  "name": "先问AI",
+  "short_name": "先问AI",
+  "description": "遇事困难？先问AI",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3182CE",
+  "icons": [
+    {
+      "src": "logo.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+} 
