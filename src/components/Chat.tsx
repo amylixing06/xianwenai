@@ -32,12 +32,23 @@ const Chat: React.FC = () => {
     setIsLoading(true)
 
     try {
-      const response = await fetch('https://api.xianwenai.com/chat', {
+      const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer sk-e32f9e02b3354fa29af6c160266613da'
         },
-        body: JSON.stringify({ message: userMessage }),
+        body: JSON.stringify({
+          model: 'deepseek-chat',
+          messages: [
+            {
+              role: 'user',
+              content: userMessage
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 2000
+        }),
       })
 
       if (!response.ok) {
@@ -45,8 +56,10 @@ const Chat: React.FC = () => {
       }
 
       const data = await response.json()
-      setMessages(prev => [...prev, { content: data.message, isUser: false }])
+      const assistantMessage = data.choices[0].message.content
+      setMessages(prev => [...prev, { content: assistantMessage, isUser: false }])
     } catch (error) {
+      console.error('Error:', error)
       toast({
         title: '错误',
         description: '发送消息时出错，请稍后重试',
