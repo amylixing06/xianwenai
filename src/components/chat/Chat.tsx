@@ -31,7 +31,11 @@ import messageSound from '/sounds/message.mp3'
 const ReactMarkdown = React.lazy(() => import('react-markdown'))
 
 // 懒加载图片组件
-const LazyImage: React.FC<{ src: string; alt: string; size?: string }> = ({ src, alt, size = 'sm' }) => {
+const LazyImage: React.FC<{ 
+  src: string; 
+  alt: string; 
+  size?: string | Record<string, string> 
+}> = ({ src, alt, size = 'sm' }) => {
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
