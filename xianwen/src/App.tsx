@@ -1,13 +1,11 @@
 import React from 'react';
-import { ChakraProvider, extendTheme } from '@chakra-ui/react';
+import { ChakraProvider } from '@chakra-ui/react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Chat from './components/Chat';
 
-const theme = extendTheme({});
-
 const App: React.FC = () => {
   return (
-    <ChakraProvider theme={theme}>
+    <ChakraProvider>
       <Router>
         <Routes>
           <Route path="/" element={<Chat />} />
