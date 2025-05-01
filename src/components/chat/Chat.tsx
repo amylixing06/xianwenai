@@ -12,20 +12,19 @@ import {
   Spinner,
   Alert,
   AlertIcon,
-  Tooltip,
-  useClipboard,
-  useSound
+  Tooltip
 } from '@chakra-ui/react'
 import React, { useState, useRef, useEffect, Suspense } from 'react'
 import { useInView } from 'react-intersection-observer'
-import { FiSend, FiCopy, FiCheck } from 'react-icons/fi'
+import { FiSend, FiCopy } from 'react-icons/fi'
 import { format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { tomorrow } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import { chatCompletion } from '@/services/api/chat'
 import { Message } from '@/types'
-import messageSound from '@/assets/sounds/message.mp3'
+import useSound from 'use-sound'
+import messageSound from '/sounds/message.mp3'
 
 // 动态导入 ReactMarkdown
 const ReactMarkdown = React.lazy(() => import('react-markdown'))
@@ -266,4 +265,4 @@ const Chat: React.FC = () => {
   )
 }
 
-export default Chat 
+export default Chat

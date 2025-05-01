@@ -1,5 +1,28 @@
 import React, { useState } from 'react'
-import { ChakraProvider, Box, Text, Container, Input, Button, Flex, VStack } from '@chakra-ui/react'
+import { 
+  ChakraProvider, 
+  Box, 
+  Text, 
+  Container, 
+  Input, 
+  Button, 
+  Flex, 
+  VStack,
+  CSSReset,
+  extendTheme
+} from '@chakra-ui/react'
+
+// 自定义主题
+const theme = extendTheme({
+  styles: {
+    global: {
+      body: {
+        bg: 'gray.50',
+        color: 'gray.800'
+      }
+    }
+  }
+})
 
 const App: React.FC = () => {
   const [messages, setMessages] = useState<Array<{ content: string; isUser: boolean }>>([])
@@ -38,7 +61,8 @@ const App: React.FC = () => {
   }
 
   return (
-    <ChakraProvider>
+    <ChakraProvider theme={theme}>
+      <CSSReset />
       <Box minH="100vh" bg="gray.50" display="flex" flexDirection="column">
         <Box py={4} bg="blue.500" color="white" textAlign="center">
           <Text fontSize="2xl" fontWeight="bold">先问AI</Text>

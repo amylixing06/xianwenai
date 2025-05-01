@@ -11,11 +11,11 @@ export default defineConfig({
     }
   },
   server: {
-    port: 0,
+    port: 5173,
     open: true,
     host: true,
     cors: true,
-    strictPort: false,
+    strictPort: true,
     hmr: {
       protocol: 'ws',
       host: 'localhost'
