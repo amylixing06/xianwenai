@@ -13,9 +13,28 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
-  useColorModeValue
+  useColorModeValue,
+  Drawer,
+  DrawerBody,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  useDisclosure,
+  Badge,
+  Tooltip,
+  Divider,
+  Spinner,
+  useClipboard,
+  Collapse,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
+  useBreakpointValue
 } from '@chakra-ui/react'
 import React, { useState, useRef, useEffect, Suspense } from 'react'
+import { useInView } from 'react-intersection-observer'
 import { 
   FiSend, 
   FiMoreVertical, 
@@ -23,21 +42,23 @@ import {
   FiTrash2,
   FiClock,
   FiCheck,
-  FiCheckCircle
+  FiCheckCircle,
+  FiMenu,
+  FiSettings,
+  FiMessageSquare,
+  FiBook,
+  FiHelpCircle,
+  FiStar,
+  FiShare2,
+  FiDownload,
+  FiEdit2
 } from 'react-icons/fi'
 import { format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
-import { useInView } from 'react-intersection-observer'
+import { chatCompletion } from '../services/api'
 
 // 动态导入 ReactMarkdown
 const ReactMarkdown = React.lazy(() => import('react-markdown'))
-
-interface Message {
-  content: string
-  isUser: boolean
-  timestamp: Date
-  status: 'sending' | 'sent' | 'read'
-}
 
 // 懒加载图片组件
 const LazyImage: React.FC<{ src: string; alt: string; size?: string }> = ({ src, alt, size = 'sm' }) => {
@@ -57,16 +78,36 @@ const LazyImage: React.FC<{ src: string; alt: string; size?: string }> = ({ src,
   )
 }
 
+interface Message {
+  content: string
+  isUser: boolean
+  timestamp: Date
+  status: 'sending' | 'sent' | 'read'
+  id: string
+  isFavorite?: boolean
+  isEdited?: boolean
+}
+
 const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [isTyping, setIsTyping] = useState(false)
+  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null)
+  const [showSettings, setShowSettings] = useState(false)
+  const [showHistory, setShowHistory] = useState(false)
+  const [showHelp, setShowHelp] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const toast = useToast()
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const { hasCopied, onCopy } = useClipboard(selectedMessage?.content || '')
   const bgColor = useColorModeValue('gray.50', 'gray.700')
   const userBgColor = useColorModeValue('blue.500', 'blue.400')
   const aiBgColor = useColorModeValue('white', 'gray.600')
+  const isMobile = useBreakpointValue({ base: true, md: false })
 
+  // 自动滚动到底部
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
@@ -75,6 +116,7 @@ const Chat: React.FC = () => {
     scrollToBottom()
   }, [messages])
 
+  // 处理消息发送
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!input.trim()) return
@@ -85,37 +127,16 @@ const Chat: React.FC = () => {
       content: userMessage,
       isUser: true,
       timestamp: new Date(),
-      status: 'sending'
+      status: 'sending',
+      id: Date.now().toString()
     }
     setMessages(prev => [...prev, newMessage])
     setIsLoading(true)
+    setIsTyping(true)
 
     try {
-      const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer sk-e32f9e02b3354fa29af6c160266613da'
-        },
-        body: JSON.stringify({
-          model: 'deepseek-chat',
-          messages: [
-            {
-              role: 'user',
-              content: userMessage
-            }
-          ],
-          temperature: 0.7,
-          max_tokens: 2000
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok')
-      }
-
-      const data = await response.json()
-      const assistantMessage = data.choices[0].message.content
+      const response = await chatCompletion(userMessage)
+      const assistantMessage = response.choices[0].message.content
       
       // 更新用户消息状态
       setMessages(prev => prev.map(msg => 
@@ -127,26 +148,25 @@ const Chat: React.FC = () => {
         content: assistantMessage,
         isUser: false,
         timestamp: new Date(),
-        status: 'sent'
+        status: 'sent',
+        id: (Date.now() + 1).toString()
       }])
     } catch (error) {
       console.error('Error:', error)
-      // 更新用户消息状态为错误
-      setMessages(prev => prev.map(msg => 
-        msg === newMessage ? { ...msg, status: 'sent' } : msg
-      ))
       toast({
         title: '错误',
-        description: '发送消息时出错，请稍后重试',
+        description: error instanceof Error ? error.message : '发送消息时出错，请稍后重试',
         status: 'error',
         duration: 3000,
         isClosable: true,
       })
     } finally {
       setIsLoading(false)
+      setIsTyping(false)
     }
   }
 
+  // 复制消息
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text)
@@ -161,10 +181,26 @@ const Chat: React.FC = () => {
     }
   }
 
-  const deleteMessage = (index: number) => {
-    setMessages(prev => prev.filter((_, i) => i !== index))
+  // 删除消息
+  const deleteMessage = (id: string) => {
+    setMessages(prev => prev.filter(msg => msg.id !== id))
   }
 
+  // 收藏消息
+  const toggleFavorite = (id: string) => {
+    setMessages(prev => prev.map(msg => 
+      msg.id === id ? { ...msg, isFavorite: !msg.isFavorite } : msg
+    ))
+  }
+
+  // 编辑消息
+  const editMessage = (id: string, newContent: string) => {
+    setMessages(prev => prev.map(msg => 
+      msg.id === id ? { ...msg, content: newContent, isEdited: true } : msg
+    ))
+  }
+
+  // 获取状态图标
   const getStatusIcon = (status: Message['status']) => {
     switch (status) {
       case 'sending':
@@ -179,12 +215,54 @@ const Chat: React.FC = () => {
   }
 
   return (
-    <Container maxW="container.md" py={4}>
-      <VStack spacing={4} align="stretch" h="calc(100vh - 100px)">
+    <Container maxW="container.xl" py={4}>
+      <Flex direction="column" h="calc(100vh - 100px)">
+        {/* 顶部工具栏 */}
+        <Flex justify="space-between" align="center" mb={4}>
+          <IconButton
+            aria-label="菜单"
+            icon={<FiMenu />}
+            onClick={onOpen}
+            variant="ghost"
+          />
+          <Text fontSize="xl" fontWeight="bold">先问 AI</Text>
+          <Flex gap={2}>
+            <IconButton
+              aria-label="设置"
+              icon={<FiSettings />}
+              onClick={() => setShowSettings(!showSettings)}
+              variant="ghost"
+            />
+            <IconButton
+              aria-label="帮助"
+              icon={<FiHelpCircle />}
+              onClick={() => setShowHelp(!showHelp)}
+              variant="ghost"
+            />
+          </Flex>
+        </Flex>
+
+        {/* 帮助提示 */}
+        <Collapse in={showHelp}>
+          <Alert status="info" mb={4} borderRadius="md">
+            <AlertIcon />
+            <Box>
+              <AlertTitle>使用提示</AlertTitle>
+              <AlertDescription>
+                您可以：
+                <br />• 发送消息与 AI 对话
+                <br />• 长按消息进行复制、删除等操作
+                <br />• 点击消息菜单查看更多选项
+              </AlertDescription>
+            </Box>
+          </Alert>
+        </Collapse>
+
+        {/* 聊天区域 */}
         <Box flex={1} overflowY="auto" p={4} bg={bgColor} borderRadius="md">
-          {messages.map((message, index) => (
+          {messages.map((message) => (
             <Flex
-              key={index}
+              key={message.id}
               justify={message.isUser ? 'flex-end' : 'flex-start'}
               mb={4}
               align="flex-start"
@@ -204,13 +282,15 @@ const Chat: React.FC = () => {
                 color={message.isUser ? 'white' : 'inherit'}
                 boxShadow="sm"
                 position="relative"
+                _groupHover={{ boxShadow: 'md' }}
               >
-                <Suspense fallback={<div>加载中...</div>}>
+                <Suspense fallback={<Spinner size="sm" />}>
                   <ReactMarkdown>{message.content}</ReactMarkdown>
                 </Suspense>
                 <Flex justify="space-between" align="center" mt={2}>
                   <Text fontSize="xs" color={message.isUser ? 'whiteAlpha.700' : 'gray.500'}>
                     {format(message.timestamp, 'HH:mm', { locale: zhCN })}
+                    {message.isEdited && ' (已编辑)'}
                   </Text>
                   {message.isUser && (
                     <Box ml={2}>
@@ -234,7 +314,39 @@ const Chat: React.FC = () => {
                     <MenuItem icon={<FiCopy />} onClick={() => copyToClipboard(message.content)}>
                       复制
                     </MenuItem>
-                    <MenuItem icon={<FiTrash2 />} onClick={() => deleteMessage(index)}>
+                    {message.isUser && (
+                      <MenuItem icon={<FiEdit2 />} onClick={() => {
+                        const newContent = prompt('编辑消息', message.content)
+                        if (newContent) editMessage(message.id, newContent)
+                      }}>
+                        编辑
+                      </MenuItem>
+                    )}
+                    <MenuItem icon={<FiStar />} onClick={() => toggleFavorite(message.id)}>
+                      {message.isFavorite ? '取消收藏' : '收藏'}
+                    </MenuItem>
+                    <MenuItem icon={<FiShare2 />} onClick={() => {
+                      if (navigator.share) {
+                        navigator.share({
+                          title: '先问 AI 消息',
+                          text: message.content
+                        })
+                      }
+                    }}>
+                      分享
+                    </MenuItem>
+                    <MenuItem icon={<FiDownload />} onClick={() => {
+                      const blob = new Blob([message.content], { type: 'text/plain' })
+                      const url = URL.createObjectURL(blob)
+                      const a = document.createElement('a')
+                      a.href = url
+                      a.download = `message-${message.id}.txt`
+                      a.click()
+                      URL.revokeObjectURL(url)
+                    }}>
+                      下载
+                    </MenuItem>
+                    <MenuItem icon={<FiTrash2 />} onClick={() => deleteMessage(message.id)}>
                       删除
                     </MenuItem>
                   </MenuList>
@@ -249,16 +361,37 @@ const Chat: React.FC = () => {
               )}
             </Flex>
           ))}
+          {isTyping && (
+            <Flex align="center" mb={4}>
+              <LazyImage
+                src="/ai-avatar.png"
+                alt="AI Assistant"
+                size="sm"
+              />
+              <Box
+                p={3}
+                borderRadius="lg"
+                bg={aiBgColor}
+                boxShadow="sm"
+              >
+                <Spinner size="sm" />
+              </Box>
+            </Flex>
+          )}
           <div ref={messagesEndRef} />
         </Box>
-        <form onSubmit={handleSubmit}>
+
+        {/* 输入区域 */}
+        <form onSubmit={handleSubmit} style={{ marginTop: '16px' }}>
           <Flex>
             <Input
+              ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="输入消息..."
               mr={2}
               size="lg"
+              autoFocus
             />
             <Button 
               type="submit" 
@@ -271,7 +404,68 @@ const Chat: React.FC = () => {
             </Button>
           </Flex>
         </form>
-      </VStack>
+      </Flex>
+
+      {/* 侧边抽屉 */}
+      <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerCloseButton />
+          <DrawerHeader>菜单</DrawerHeader>
+          <DrawerBody>
+            <VStack spacing={4} align="stretch">
+              <Button
+                leftIcon={<FiMessageSquare />}
+                variant="ghost"
+                justifyContent="flex-start"
+                onClick={() => {
+                  setShowHistory(!showHistory)
+                  onClose()
+                }}
+              >
+                聊天历史
+              </Button>
+              <Button
+                leftIcon={<FiBook />}
+                variant="ghost"
+                justifyContent="flex-start"
+              >
+                知识库
+              </Button>
+              <Button
+                leftIcon={<FiStar />}
+                variant="ghost"
+                justifyContent="flex-start"
+              >
+                收藏夹
+              </Button>
+              <Divider />
+              <Button
+                leftIcon={<FiSettings />}
+                variant="ghost"
+                justifyContent="flex-start"
+                onClick={() => {
+                  setShowSettings(!showSettings)
+                  onClose()
+                }}
+              >
+                设置
+              </Button>
+              <Button
+                leftIcon={<FiHelpCircle />}
+                variant="ghost"
+                justifyContent="flex-start"
+                onClick={() => {
+                  setShowHelp(!showHelp)
+                  onClose()
+                }}
+              >
+                帮助
+              </Button>
+            </VStack>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
     </Container>
   )
 }
