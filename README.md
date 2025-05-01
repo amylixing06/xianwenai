@@ -1,6 +1,22 @@
-# 先问AI：可以帮你理解和分析当前网页的内容的AI助手
+# 先问AI：基于Chrome扩展的AI助手
 
 **【完全开源】** 基于Chrome扩展的最佳实践开发，AI助手能够基于当前网页内容进行智能问答。支持自定义API和本地大模型。
+
+## 项目结构
+
+项目分为两个主要部分：
+
+1. Chrome扩展部分：
+   - `manifest.json` - 扩展配置文件
+   - `background.js` - 后台脚本
+   - `content.js` - 内容脚本
+   - `icons/` - 扩展图标
+   - `popup/` - 弹出窗口
+   - `options/` - 选项页面
+   - `styles/` - 样式文件
+
+2. 网站部分（xianwenai.com）：
+   - `xianwen/` - 网站前端代码
 
 ## 功能特性
 
@@ -71,3 +87,22 @@ ollama serve
 
 - 本插件完全开源，不会收集任何个人信息
 - 配置信息默认保存在本地浏览器中
+
+## 开发说明
+
+### Chrome扩展开发
+1. 修改扩展配置：编辑 `manifest.json`
+2. 修改后台脚本：编辑 `background.js`
+3. 修改内容脚本：编辑 `content.js`
+4. 修改弹出窗口：编辑 `popup/` 目录下的文件
+5. 修改选项页面：编辑 `options/` 目录下的文件
+
+### 网站开发
+1. 进入 `xianwen` 目录
+2. 安装依赖：`npm install`
+3. 启动开发服务器：`npm run dev`
+4. 构建生产版本：`npm run build`
+
+## 许可证
+
+本项目采用 MIT 许可证，详见 [LICENSE](LICENSE) 文件。
