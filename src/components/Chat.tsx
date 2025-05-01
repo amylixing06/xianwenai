@@ -13,12 +13,9 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
-  Tooltip,
-  useColorModeValue,
-  Badge
+  useColorModeValue
 } from '@chakra-ui/react'
-import React, { useState, useRef, useEffect } from 'react'
-import ReactMarkdown from 'react-markdown'
+import React, { useState, useRef, useEffect, Suspense } from 'react'
 import { 
   FiSend, 
   FiMoreVertical, 
@@ -30,12 +27,34 @@ import {
 } from 'react-icons/fi'
 import { format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
+import { useInView } from 'react-intersection-observer'
+
+// 动态导入 ReactMarkdown
+const ReactMarkdown = React.lazy(() => import('react-markdown'))
 
 interface Message {
   content: string
   isUser: boolean
   timestamp: Date
   status: 'sending' | 'sent' | 'read'
+}
+
+// 懒加载图片组件
+const LazyImage: React.FC<{ src: string; alt: string; size?: string }> = ({ src, alt, size = 'sm' }) => {
+  const [ref, inView] = useInView({
+    triggerOnce: true,
+    threshold: 0.1,
+  })
+
+  return (
+    <Avatar
+      ref={ref}
+      name={alt}
+      src={inView ? src : ''}
+      size={size}
+      loading="lazy"
+    />
+  )
 }
 
 const Chat: React.FC = () => {
@@ -171,11 +190,10 @@ const Chat: React.FC = () => {
               align="flex-start"
             >
               {!message.isUser && (
-                <Avatar
-                  name="AI Assistant"
+                <LazyImage
                   src="/ai-avatar.png"
+                  alt="AI Assistant"
                   size="sm"
-                  mr={2}
                 />
               )}
               <Box
@@ -187,7 +205,9 @@ const Chat: React.FC = () => {
                 boxShadow="sm"
                 position="relative"
               >
-                <ReactMarkdown>{message.content}</ReactMarkdown>
+                <Suspense fallback={<div>加载中...</div>}>
+                  <ReactMarkdown>{message.content}</ReactMarkdown>
+                </Suspense>
                 <Flex justify="space-between" align="center" mt={2}>
                   <Text fontSize="xs" color={message.isUser ? 'whiteAlpha.700' : 'gray.500'}>
                     {format(message.timestamp, 'HH:mm', { locale: zhCN })}
@@ -221,11 +241,10 @@ const Chat: React.FC = () => {
                 </Menu>
               </Box>
               {message.isUser && (
-                <Avatar
-                  name="User"
+                <LazyImage
                   src="/user-avatar.png"
+                  alt="User"
                   size="sm"
-                  ml={2}
                 />
               )}
             </Flex>
