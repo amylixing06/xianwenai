@@ -53,7 +53,15 @@ const LazyImage: React.FC<{ src: string; alt: string; size?: string }> = ({ src,
 }
 
 const Chat: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([])
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: 'welcome',
+      content: '遇事困难？先问AI\n\n我是您的AI助手，让我来帮您解决问题。',
+      isUser: false,
+      timestamp: new Date(),
+      status: 'sent'
+    }
+  ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -261,10 +269,7 @@ const Chat: React.FC = () => {
                   <Suspense fallback={<Spinner size="sm" />}>
                     {renderMessageContent(message.content)}
                   </Suspense>
-                  <Flex justify="space-between" align="center" mt={2}>
-                    <Text fontSize="xs" color={message.isUser ? 'whiteAlpha.700' : 'gray.500'}>
-                      {format(message.timestamp, 'HH:mm', { locale: zhCN })}
-                    </Text>
+                  <Flex justify="flex-end" align="center" mt={2}>
                     <Tooltip label="复制消息">
                       <IconButton
                         aria-label="复制消息"
@@ -301,7 +306,6 @@ const Chat: React.FC = () => {
               onChange={e => setInput(e.target.value)}
               onKeyPress={e => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
               placeholder="输入消息..."
-              disabled={isLoading}
               size="lg"
               variant="filled"
             />

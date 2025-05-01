@@ -1,12 +1,42 @@
+:root {
+  --chakra-colors-gray-50: #F7FAFC;
+  --chakra-colors-gray-800: #1A202C;
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-html, body, #root {
+html, body {
   height: 100%;
   width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--chakra-colors-gray-50);
+}
+
+/* 调试样式 */
+#root:empty {
+  background-color: red;
+  min-height: 100vh;
+}
+
+#root:empty::after {
+  content: 'Root element is empty';
+  color: white;
+  font-size: 24px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 body {
