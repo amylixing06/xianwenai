@@ -2,10 +2,10 @@
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/xianwen/index.html"
+      "destination": "/index.html"
     }
   ],
-  "buildCommand": "cd xianwen && npm install && npm run build",
-  "outputDirectory": "xianwen/dist",
+  "buildCommand": "npm install && npm run build",
+  "outputDirectory": "dist",
   "framework": "vite"
 } 
