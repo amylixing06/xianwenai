@@ -1,67 +1,93 @@
-import React, { Suspense, lazy, useEffect } from 'react';
-import { ChakraProvider, Spinner, Center } from '@chakra-ui/react';
-import { HashRouter as Router, Routes, Route } from 'react-router-dom';
-
-// 预加载函数
-const preloadComponent = (importFn: () => Promise<any>) => {
-  const link = document.createElement('link');
-  link.rel = 'preload';
-  link.as = 'script';
-  link.href = importFn.toString().match(/['"](.*?)['"]/)?.[1] || '';
-  document.head.appendChild(link);
-};
-
-// 动态导入组件
-const Chat = lazy(() => {
-  // 预加载其他可能需要的组件
-  preloadComponent(() => import('./components/Chat'));
-  return import('./components/Chat');
-});
-
-// 加载状态组件
-const LoadingSpinner = () => (
-  <Center h="100vh">
-    <Spinner
-      thickness="4px"
-      speed="0.65s"
-      emptyColor="gray.200"
-      color="blue.500"
-      size="xl"
-    />
-  </Center>
-);
+import React, { useState } from 'react'
+import { ChakraProvider, Box, Text, Container, Input, Button, Flex, VStack } from '@chakra-ui/react'
 
 const App: React.FC = () => {
-  // 预加载关键资源
-  useEffect(() => {
-    // 预加载字体
-    const fontLink = document.createElement('link');
-    fontLink.rel = 'preload';
-    fontLink.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap';
-    fontLink.as = 'style';
-    document.head.appendChild(fontLink);
+  const [messages, setMessages] = useState<Array<{ content: string; isUser: boolean }>>([])
+  const [input, setInput] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
-    // 预加载关键图片
-    const preloadImage = (src: string) => {
-      const img = new Image();
-      img.src = src;
-    };
-    preloadImage('/ai-avatar.png');
-    preloadImage('/user-avatar.png');
-  }, []);
+  const handleSend = async () => {
+    if (!input.trim() || isLoading) return
+    
+    // 添加用户消息
+    setMessages(prev => [...prev, { content: input, isUser: true }])
+    const userInput = input
+    setInput('')
+    setIsLoading(true)
+
+    try {
+      const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: 'deepseek-chat',
+          messages: [{ role: 'user', content: userInput }]
+        })
+      })
+
+      const data = await response.json()
+      setMessages(prev => [...prev, { content: data.choices[0].message.content, isUser: false }])
+    } catch (error) {
+      console.error('API 请求失败:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <ChakraProvider>
-      <Router>
-        <Suspense fallback={<LoadingSpinner />}>
-          <Routes>
-            <Route path="/" element={<Chat />} />
-            <Route path="*" element={<Chat />} />
-          </Routes>
-        </Suspense>
-      </Router>
-    </ChakraProvider>
-  );
-};
+      <Box minH="100vh" bg="gray.50" display="flex" flexDirection="column">
+        <Box py={4} bg="blue.500" color="white" textAlign="center">
+          <Text fontSize="2xl" fontWeight="bold">先问AI</Text>
+          <Text fontSize="md">一个简单的 AI 聊天应用</Text>
+        </Box>
 
-export default App;
+        <Container maxW="container.md" flex="1" py={4} display="flex" flexDirection="column">
+          <VStack flex="1" spacing={4} align="stretch" overflowY="auto">
+            {messages.map((msg, index) => (
+              <Flex 
+                key={index} 
+                justify={msg.isUser ? 'flex-end' : 'flex-start'}
+              >
+                <Box
+                  maxW="70%"
+                  bg={msg.isUser ? 'blue.500' : 'white'}
+                  color={msg.isUser ? 'white' : 'black'}
+                  p={3}
+                  borderRadius="lg"
+                  shadow="sm"
+                >
+                  {msg.content}
+                </Box>
+              </Flex>
+            ))}
+          </VStack>
+
+          <Flex mt={4} gap={3}>
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+              placeholder="输入消息..."
+              disabled={isLoading}
+              bg="white"
+            />
+            <Button
+              colorScheme="blue"
+              onClick={handleSend}
+              isLoading={isLoading}
+              px={8}
+            >
+              发送
+            </Button>
+          </Flex>
+        </Container>
+      </Box>
+    </ChakraProvider>
+  )
+}
+
+export default App

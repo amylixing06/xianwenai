@@ -2,65 +2,11 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
-    <link rel="icon" type="image/x-icon" href="/icons/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>先问 AI</title>
-    
-    <!-- PWA 支持 -->
-    <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#3182ce" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-    <meta name="apple-mobile-web-app-title" content="先问 AI" />
-    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
-    
-    <!-- PWA 离线提示 -->
-    <style>
-      #offline-message {
-        display: none;
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #3182ce;
-        color: white;
-        padding: 12px 24px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        z-index: 1000;
-      }
-      .offline #offline-message {
-        display: block;
-      }
-    </style>
-
-    <script>
-      // 注册 Service Worker
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-              console.log('ServiceWorker registration successful');
-            })
-            .catch(err => {
-              console.log('ServiceWorker registration failed: ', err);
-            });
-        });
-      }
-
-      // 监听网络状态
-      window.addEventListener('online', () => {
-        document.body.classList.remove('offline');
-      });
-      window.addEventListener('offline', () => {
-        document.body.classList.add('offline');
-      });
-    </script>
+    <title>先问AI</title>
   </head>
   <body>
     <div id="root"></div>
-    <div id="offline-message">您当前处于离线状态</div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
