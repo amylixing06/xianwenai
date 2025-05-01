@@ -40,7 +40,6 @@ export default defineConfig({
       }
     },
     chunkSizeWarningLimit: 1000,
-    minify: 'esbuild',
     sourcemap: false
   },
   server: {

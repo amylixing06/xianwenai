@@ -44,7 +44,6 @@ import {
   FiCheck,
   FiCheckCircle,
   FiMenu,
-  FiSettings,
   FiMessageSquare,
   FiBook,
   FiHelpCircle,
@@ -94,7 +93,6 @@ const Chat: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [isTyping, setIsTyping] = useState(false)
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null)
-  const [showSettings, setShowSettings] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
   const [showHelp, setShowHelp] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -226,20 +224,12 @@ const Chat: React.FC = () => {
             variant="ghost"
           />
           <Text fontSize="xl" fontWeight="bold">先问 AI</Text>
-          <Flex gap={2}>
-            <IconButton
-              aria-label="设置"
-              icon={<FiSettings />}
-              onClick={() => setShowSettings(!showSettings)}
-              variant="ghost"
-            />
-            <IconButton
-              aria-label="帮助"
-              icon={<FiHelpCircle />}
-              onClick={() => setShowHelp(!showHelp)}
-              variant="ghost"
-            />
-          </Flex>
+          <IconButton
+            aria-label="帮助"
+            icon={<FiHelpCircle />}
+            onClick={() => setShowHelp(!showHelp)}
+            variant="ghost"
+          />
         </Flex>
 
         {/* 帮助提示 */}
@@ -440,17 +430,6 @@ const Chat: React.FC = () => {
                 收藏夹
               </Button>
               <Divider />
-              <Button
-                leftIcon={<FiSettings />}
-                variant="ghost"
-                justifyContent="flex-start"
-                onClick={() => {
-                  setShowSettings(!showSettings)
-                  onClose()
-                }}
-              >
-                设置
-              </Button>
               <Button
                 leftIcon={<FiHelpCircle />}
                 variant="ghost"
