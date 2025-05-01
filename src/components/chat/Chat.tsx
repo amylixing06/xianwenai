@@ -274,24 +274,47 @@ const Chat: React.FC = () => {
                   <Suspense fallback={<Spinner size="sm" />}>
                     {renderMessageContent(message.content)}
                   </Suspense>
-                  <Flex justify="flex-end" align="center" mt={2}>
-                    <Tooltip label="复制消息">
-                      <IconButton
-                        aria-label="复制消息"
-                        icon={<FiCopy />}
-                        size="xs"
-                        variant="ghost"
-                        onClick={() => handleCopyMessage(message.content)}
-                        color={message.isUser ? 'whiteAlpha.700' : 'gray.500'}
-                      />
-                    </Tooltip>
-                  </Flex>
+                  {!message.isUser && (
+                    <Flex justify="flex-end" align="center" mt={2}>
+                      <Tooltip label="复制消息">
+                        <IconButton
+                          aria-label="复制消息"
+                          icon={<FiCopy />}
+                          size="xs"
+                          variant="ghost"
+                          onClick={() => handleCopyMessage(message.content)}
+                          color="gray.500"
+                        />
+                      </Tooltip>
+                    </Flex>
+                  )}
                 </Box>
               </Flex>
             ))}
             {isLoading && (
-              <Flex justify="center">
-                <Spinner size={{ base: "md", md: "lg" }} color="blue.500" />
+              <Flex
+                direction="row"
+                align="flex-start"
+                gap={{ base: 2, md: 3 }}
+              >
+                <LazyImage
+                  src="/images/ai-avatar.svg"
+                  alt="AI"
+                  size={{ base: "xs", md: "sm" }}
+                />
+                <Box
+                  maxW={{ base: "75%", md: "70%" }}
+                  p={{ base: 2, md: 4 }}
+                  borderRadius="lg"
+                  bg={aiBgColor}
+                  position="relative"
+                  boxShadow="sm"
+                  borderWidth="1px"
+                  borderColor={borderColor}
+                  fontSize={{ base: "sm", md: "md" }}
+                >
+                  <Text color="gray.500">正在输入中...</Text>
+                </Box>
               </Flex>
             )}
             <div ref={messagesEndRef} />
