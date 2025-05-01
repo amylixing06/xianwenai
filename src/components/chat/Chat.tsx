@@ -12,11 +12,14 @@ import {
   Spinner,
   Alert,
   AlertIcon,
-  Tooltip
+  Tooltip,
+  useColorMode,
+  Button,
+  Heading
 } from '@chakra-ui/react'
 import React, { useState, useRef, useEffect, Suspense } from 'react'
 import { useInView } from 'react-intersection-observer'
-import { FiSend, FiCopy } from 'react-icons/fi'
+import { FiSend, FiCopy, FiSun, FiMoon } from 'react-icons/fi'
 import { format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
@@ -43,6 +46,8 @@ const LazyImage: React.FC<{ src: string; alt: string; size?: string }> = ({ src,
       src={inView ? src : ''}
       size={size}
       loading="lazy"
+      bg="blue.500"
+      color="white"
     />
   )
 }
@@ -55,8 +60,10 @@ const Chat: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const toast = useToast()
+  const { colorMode, toggleColorMode } = useColorMode()
   const userBgColor = useColorModeValue('blue.500', 'blue.400')
-  const aiBgColor = useColorModeValue('white', 'gray.600')
+  const aiBgColor = useColorModeValue('white', 'gray.700')
+  const borderColor = useColorModeValue('gray.200', 'gray.600')
   const [playMessageSound] = useSound(messageSound)
 
   // 处理消息复制
@@ -152,7 +159,8 @@ const Chat: React.FC = () => {
             customStyle={{
               margin: 0,
               borderRadius: '0.375rem',
-              fontSize: '0.875rem'
+              fontSize: '0.875rem',
+              background: colorMode === 'light' ? '#f6f8fa' : '#1a202c'
             }}
           >
             {code}
@@ -165,6 +173,8 @@ const Chat: React.FC = () => {
             top={2}
             right={2}
             onClick={() => handleCopyMessage(code)}
+            variant="ghost"
+            colorScheme="blue"
           />
         </Box>
       )
@@ -187,10 +197,41 @@ const Chat: React.FC = () => {
   return (
     <Container maxW="container.xl" h="100vh" p={4}>
       <Flex direction="column" h="full">
-        <Box flex="1" overflowY="auto" mb={4}>
+        <Box 
+          py={4} 
+          px={6} 
+          bg={useColorModeValue('white', 'gray.800')}
+          borderRadius="lg"
+          boxShadow="sm"
+          mb={4}
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <Heading size="lg" color={useColorModeValue('blue.500', 'blue.300')}>
+            先问AI
+          </Heading>
+          <Button
+            onClick={toggleColorMode}
+            variant="ghost"
+            colorScheme="blue"
+            leftIcon={colorMode === 'light' ? <FiMoon /> : <FiSun />}
+          >
+            {colorMode === 'light' ? '深色模式' : '浅色模式'}
+          </Button>
+        </Box>
+
+        <Box 
+          flex="1" 
+          overflowY="auto" 
+          mb={4}
+          bg={useColorModeValue('gray.50', 'gray.900')}
+          borderRadius="lg"
+          p={4}
+        >
           <VStack spacing={4} align="stretch">
             {error && (
-              <Alert status="error">
+              <Alert status="error" borderRadius="md">
                 <AlertIcon />
                 {error}
               </Alert>
@@ -200,7 +241,7 @@ const Chat: React.FC = () => {
                 key={message.id}
                 direction={message.isUser ? 'row-reverse' : 'row'}
                 align="flex-start"
-                gap={2}
+                gap={3}
               >
                 <LazyImage
                   src={message.isUser ? '/images/user-avatar.svg' : '/images/ai-avatar.svg'}
@@ -208,11 +249,14 @@ const Chat: React.FC = () => {
                 />
                 <Box
                   maxW="70%"
-                  p={3}
+                  p={4}
                   borderRadius="lg"
                   bg={message.isUser ? userBgColor : aiBgColor}
                   color={message.isUser ? 'white' : 'inherit'}
                   position="relative"
+                  boxShadow="sm"
+                  borderWidth="1px"
+                  borderColor={borderColor}
                 >
                   <Suspense fallback={<Spinner size="sm" />}>
                     {renderMessageContent(message.content)}
@@ -228,6 +272,7 @@ const Chat: React.FC = () => {
                         size="xs"
                         variant="ghost"
                         onClick={() => handleCopyMessage(message.content)}
+                        color={message.isUser ? 'whiteAlpha.700' : 'gray.500'}
                       />
                     </Tooltip>
                   </Flex>
@@ -236,30 +281,41 @@ const Chat: React.FC = () => {
             ))}
             {isLoading && (
               <Flex justify="center">
-                <Spinner />
+                <Spinner size="lg" color="blue.500" />
               </Flex>
             )}
             <div ref={messagesEndRef} />
           </VStack>
         </Box>
-        <Flex gap={2}>
-          <Input
-            ref={inputRef}
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyPress={e => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
-            placeholder="输入消息..."
-            disabled={isLoading}
-          />
-          <IconButton
-            aria-label="发送消息"
-            icon={<FiSend />}
-            onClick={handleSendMessage}
-            isLoading={isLoading}
-            colorScheme="blue"
-            isDisabled={!input.trim() || isLoading}
-          />
-        </Flex>
+
+        <Box
+          p={4}
+          bg={useColorModeValue('white', 'gray.800')}
+          borderRadius="lg"
+          boxShadow="sm"
+        >
+          <Flex gap={2}>
+            <Input
+              ref={inputRef}
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyPress={e => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
+              placeholder="输入消息..."
+              disabled={isLoading}
+              size="lg"
+              variant="filled"
+            />
+            <IconButton
+              aria-label="发送消息"
+              icon={<FiSend />}
+              onClick={handleSendMessage}
+              isLoading={isLoading}
+              colorScheme="blue"
+              isDisabled={!input.trim() || isLoading}
+              size="lg"
+            />
+          </Flex>
+        </Box>
       </Flex>
     </Container>
   )
