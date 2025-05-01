@@ -201,20 +201,20 @@ const Chat: React.FC = () => {
   }
 
   return (
-    <Container maxW="container.xl" h="100vh" p={4}>
+    <Container maxW="container.xl" h="100vh" p={{ base: 2, md: 4 }}>
       <Flex direction="column" h="full">
         <Box 
-          py={4} 
-          px={6} 
+          py={{ base: 2, md: 4 }}
+          px={{ base: 3, md: 6 }}
           bg={useColorModeValue('white', 'gray.800')}
           borderRadius="lg"
           boxShadow="sm"
-          mb={4}
+          mb={{ base: 2, md: 4 }}
           display="flex"
           justifyContent="space-between"
           alignItems="center"
         >
-          <Heading size="lg" color={useColorModeValue('blue.500', 'blue.300')}>
+          <Heading size={{ base: "md", md: "lg" }} color={useColorModeValue('blue.500', 'blue.300')}>
             先问AI
           </Heading>
           <Button
@@ -222,6 +222,7 @@ const Chat: React.FC = () => {
             variant="ghost"
             colorScheme="blue"
             leftIcon={colorMode === 'light' ? <FiMoon /> : <FiSun />}
+            size={{ base: "sm", md: "md" }}
           >
             <Text>{colorMode === 'light' ? '深色模式' : '浅色模式'}</Text>
           </Button>
@@ -230,12 +231,12 @@ const Chat: React.FC = () => {
         <Box 
           flex="1" 
           overflowY="auto" 
-          mb={4}
+          mb={{ base: 2, md: 4 }}
           bg={useColorModeValue('gray.50', 'gray.900')}
           borderRadius="lg"
-          p={4}
+          p={{ base: 2, md: 4 }}
         >
-          <VStack spacing={4} align="stretch">
+          <VStack spacing={{ base: 2, md: 4 }} align="stretch">
             {error && (
               <Alert status="error" borderRadius="md">
                 <AlertIcon />
@@ -247,15 +248,16 @@ const Chat: React.FC = () => {
                 key={message.id}
                 direction={message.isUser ? 'row-reverse' : 'row'}
                 align="flex-start"
-                gap={3}
+                gap={{ base: 2, md: 3 }}
               >
                 <LazyImage
                   src={message.isUser ? '/images/user-avatar.svg' : '/images/ai-avatar.svg'}
                   alt={message.isUser ? '用户' : 'AI'}
+                  size={{ base: "xs", md: "sm" }}
                 />
                 <Box
-                  maxW="70%"
-                  p={4}
+                  maxW={{ base: "75%", md: "70%" }}
+                  p={{ base: 2, md: 4 }}
                   borderRadius="lg"
                   bg={message.isUser ? userBgColor : aiBgColor}
                   color={message.isUser ? 'white' : 'inherit'}
@@ -263,6 +265,7 @@ const Chat: React.FC = () => {
                   boxShadow="sm"
                   borderWidth="1px"
                   borderColor={borderColor}
+                  fontSize={{ base: "sm", md: "md" }}
                 >
                   <Suspense fallback={<Spinner size="sm" />}>
                     {renderMessageContent(message.content)}
@@ -284,7 +287,7 @@ const Chat: React.FC = () => {
             ))}
             {isLoading && (
               <Flex justify="center">
-                <Spinner size="lg" color="blue.500" />
+                <Spinner size={{ base: "md", md: "lg" }} color="blue.500" />
               </Flex>
             )}
             <div ref={messagesEndRef} />
@@ -292,7 +295,7 @@ const Chat: React.FC = () => {
         </Box>
 
         <Box
-          p={4}
+          p={{ base: 2, md: 4 }}
           bg={useColorModeValue('white', 'gray.800')}
           borderRadius="lg"
           boxShadow="sm"
@@ -304,7 +307,7 @@ const Chat: React.FC = () => {
               onChange={e => setInput(e.target.value)}
               onKeyPress={e => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
               placeholder="输入消息..."
-              size="lg"
+              size={{ base: "md", md: "lg" }}
               variant="filled"
             />
             <IconButton
@@ -314,7 +317,7 @@ const Chat: React.FC = () => {
               isLoading={isLoading}
               colorScheme="blue"
               isDisabled={!input.trim() || isLoading}
-              size="lg"
+              size={{ base: "md", md: "lg" }}
             />
           </Flex>
         </Box>
