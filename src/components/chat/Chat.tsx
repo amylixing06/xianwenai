@@ -15,7 +15,8 @@ import {
   Tooltip,
   useColorMode,
   Button,
-  Heading
+  Heading,
+  Link
 } from '@chakra-ui/react'
 import React, { useState, useRef, useEffect, Suspense } from 'react'
 import { useInView } from 'react-intersection-observer'
@@ -26,6 +27,7 @@ import { chatCompletion } from '@/services/api/chat'
 import { Message } from '@/types'
 import useSound from 'use-sound'
 import messageSound from '/sounds/message.mp3'
+import { Link as RouterLink } from 'react-router-dom'
 
 // 动态导入 ReactMarkdown
 const ReactMarkdown = React.lazy(() => import('react-markdown'))
@@ -221,15 +223,20 @@ const Chat: React.FC = () => {
           <Heading size={{ base: "md", md: "lg" }} color={useColorModeValue('blue.500', 'blue.300')}>
             先问AI
           </Heading>
-          <Button
-            onClick={toggleColorMode}
-            variant="ghost"
-            colorScheme="blue"
-            leftIcon={colorMode === 'light' ? <FiMoon /> : <FiSun />}
-            size={{ base: "sm", md: "md" }}
-          >
-            <Text>{colorMode === 'light' ? '深色模式' : '浅色模式'}</Text>
-          </Button>
+          <Flex gap={2} align="center">
+            <Link as={RouterLink} to="/privacy" fontSize="sm" color={useColorModeValue('gray.600', 'gray.400')}>
+              隐私政策
+            </Link>
+            <Button
+              onClick={toggleColorMode}
+              variant="ghost"
+              colorScheme="blue"
+              leftIcon={colorMode === 'light' ? <FiMoon /> : <FiSun />}
+              size={{ base: "sm", md: "md" }}
+            >
+              <Text>{colorMode === 'light' ? '深色模式' : '浅色模式'}</Text>
+            </Button>
+          </Flex>
         </Box>
 
         <Box 
