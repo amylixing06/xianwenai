@@ -14,8 +14,8 @@ const App: React.FC = () => {
       <Router>
         <Routes>
           <Route path="/" element={<Chat />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy.md" element={<Privacy />} />
+          <Route path="/terms.md" element={<Terms />} />
         </Routes>
       </Router>
     </ThemeProvider>
