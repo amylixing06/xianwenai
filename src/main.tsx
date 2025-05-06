@@ -1,22 +1,52 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import { ThemeProvider, createTheme } from '@mui/material/styles'
+import CssBaseline from '@mui/material/CssBaseline'
 import App from './App'
 import './index.css'
 
-const rootElement = document.getElementById('root')
-if (!rootElement) {
-  const newRoot = document.createElement('div')
-  newRoot.id = 'root'
-  document.body.appendChild(newRoot)
-  ReactDOM.createRoot(newRoot).render(
-    <React.StrictMode>
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#3182CE',
+    },
+    background: {
+      default: '#f7f7f7',
+      paper: '#ffffff',
+    },
+  },
+  typography: {
+    fontFamily: [
+      '-apple-system',
+      'BlinkMacSystemFont',
+      '"Segoe UI"',
+      'Roboto',
+      '"Helvetica Neue"',
+      'Arial',
+      'sans-serif',
+    ].join(','),
+  },
+  components: {
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundImage: 'none',
+        },
+      },
+    },
+    MuiLink: {
+      defaultProps: {
+        underline: 'hover',
+      },
+    },
+  },
+})
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
       <App />
-    </React.StrictMode>
-  )
-} else {
-  ReactDOM.createRoot(rootElement).render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  )
-}
+    </ThemeProvider>
+  </React.StrictMode>
+)

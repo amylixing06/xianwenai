@@ -1,34 +1,26 @@
-import { 
-  Box, 
-  Container, 
-  Flex, 
-  Input, 
-  VStack, 
-  useToast,
-  Avatar,
-  Text,
-  IconButton,
-  useColorModeValue,
-  Spinner,
-  Alert,
-  AlertIcon,
-  Tooltip,
-  useColorMode,
-  Button,
-  Heading,
-  Link
-} from '@chakra-ui/react'
 import React, { useState, useRef, useEffect, Suspense } from 'react'
 import { useInView } from 'react-intersection-observer'
-import { FiSend, FiCopy, FiSun, FiMoon } from 'react-icons/fi'
+import { FiSend, FiCopy } from 'react-icons/fi'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { tomorrow } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import { chatCompletion } from '@/services/api/chat'
 import { Message } from '@/types'
 import useSound from 'use-sound'
 import messageSound from '/sounds/message.mp3'
-import { Link as RouterLink } from 'react-router-dom'
-import { Link as MuiLink } from '@mui/material'
+import { 
+  Box,
+  Container,
+  Stack,
+  TextField,
+  IconButton,
+  Typography,
+  Avatar,
+  Paper,
+  Alert,
+  AlertTitle,
+  Tooltip,
+  Link as MuiLink
+} from '@mui/material'
 
 // 动态导入 ReactMarkdown
 const ReactMarkdown = React.lazy(() => import('react-markdown'))
@@ -37,8 +29,8 @@ const ReactMarkdown = React.lazy(() => import('react-markdown'))
 const LazyImage: React.FC<{ 
   src: string; 
   alt: string; 
-  size?: string | Record<string, string> 
-}> = ({ src, alt, size = 'sm' }) => {
+  size?: number;
+}> = ({ src, alt, size = 40 }) => {
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
@@ -47,12 +39,13 @@ const LazyImage: React.FC<{
   return (
     <Avatar
       ref={ref}
-      name={alt}
+      alt={alt}
       src={inView ? src : ''}
-      size={size}
-      loading="lazy"
-      bg="blue.500"
-      color="white"
+      sx={{ 
+        width: size, 
+        height: size,
+        bgcolor: 'primary.main'
+      }}
     />
   )
 }
@@ -72,22 +65,12 @@ const Chat: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-  const toast = useToast()
-  const { colorMode, toggleColorMode } = useColorMode()
-  const userBgColor = useColorModeValue('blue.500', 'blue.400')
-  const aiBgColor = useColorModeValue('white', 'gray.700')
-  const borderColor = useColorModeValue('gray.200', 'gray.600')
   const [playMessageSound] = useSound(messageSound)
 
   // 处理消息复制
   const handleCopyMessage = (content: string) => {
     navigator.clipboard.writeText(content)
-    toast({
-      title: '已复制到剪贴板',
-      status: 'success',
-      duration: 2000,
-      isClosable: true
-    })
+    // TODO: 添加复制成功提示
   }
 
   // 处理发送消息
@@ -127,13 +110,6 @@ const Chat: React.FC = () => {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : '发送消息失败'
       setError(errorMessage)
-      toast({
-        title: '发送失败',
-        description: errorMessage,
-        status: 'error',
-        duration: 3000,
-        isClosable: true
-      })
     } finally {
       setIsLoading(false)
     }
@@ -171,24 +147,26 @@ const Chat: React.FC = () => {
             style={tomorrow}
             customStyle={{
               margin: 0,
-              borderRadius: '0.375rem',
+              borderRadius: 4,
               fontSize: '0.875rem',
-              background: colorMode === 'light' ? '#f6f8fa' : '#1a202c'
+              background: '#f6f8fa'
             }}
           >
             {code}
           </SyntaxHighlighter>
           <IconButton
             aria-label="复制代码"
-            icon={<FiCopy />}
-            size="sm"
-            position="absolute"
-            top={2}
-            right={2}
+            size="small"
             onClick={() => handleCopyMessage(code)}
-            variant="ghost"
-            colorScheme="blue"
-          />
+            sx={{
+              position: 'absolute',
+              top: 8,
+              right: 8,
+              color: 'text.secondary'
+            }}
+          >
+            <FiCopy />
+          </IconButton>
         </Box>
       )
 
@@ -208,175 +186,143 @@ const Chat: React.FC = () => {
   }
 
   return (
-    <Box 
-      minH="100vh"
-      bg={useColorModeValue('gray.50', 'gray.900')}
-      transition="background-color 0.2s"
-    >
-      <Container maxW="container.xl" h="100vh" p={{ base: 2, md: 4 }}>
-        <Flex direction="column" h="full">
-          <Box 
-            py={{ base: 2, md: 4 }}
-            px={{ base: 3, md: 6 }}
-            bg={useColorModeValue('white', 'gray.800')}
-            borderRadius="lg"
-            boxShadow="sm"
-            mb={{ base: 2, md: 4 }}
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            transition="background-color 0.2s"
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+      <Container maxWidth="xl" sx={{ height: '100vh', py: 2 }}>
+        <Stack spacing={2} sx={{ height: '100%' }}>
+          {/* 头部 */}
+          <Paper 
+            elevation={1} 
+            sx={{ 
+              p: 2,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}
           >
-            <Heading size={{ base: "md", md: "lg" }} color={useColorModeValue('blue.500', 'blue.300')}>
+            <Typography variant="h6" color="primary">
               先问AI
-            </Heading>
-            <Flex gap={2} align="center">
-              <Button
-                onClick={toggleColorMode}
-                variant="ghost"
-                colorScheme="blue"
-                leftIcon={colorMode === 'light' ? <FiMoon /> : <FiSun />}
-                size={{ base: "sm", md: "md" }}
-              >
-                <Text>{colorMode === 'light' ? '深色模式' : '浅色模式'}</Text>
-              </Button>
-            </Flex>
-          </Box>
+            </Typography>
+          </Paper>
 
-          <Box 
-            flex="1" 
-            overflowY="auto" 
-            mb={{ base: 2, md: 4 }}
-            bg={useColorModeValue('white', 'gray.800')}
-            borderRadius="lg"
-            p={{ base: 2, md: 4 }}
-            transition="background-color 0.2s"
+          {/* 消息列表 */}
+          <Paper 
+            elevation={1}
+            sx={{ 
+              flex: 1,
+              overflow: 'auto',
+              p: 2
+            }}
           >
-            <VStack spacing={{ base: 2, md: 4 }} align="stretch">
+            <Stack spacing={2}>
               {error && (
-                <Alert status="error" borderRadius="md">
-                  <AlertIcon />
+                <Alert severity="error">
+                  <AlertTitle>错误</AlertTitle>
                   {error}
                 </Alert>
               )}
               {messages.map(message => (
-                <Flex
+                <Stack
                   key={message.id}
                   direction={message.isUser ? 'row-reverse' : 'row'}
-                  align="flex-start"
-                  gap={{ base: 2, md: 3 }}
+                  spacing={2}
+                  alignItems="flex-start"
                 >
                   <LazyImage
                     src={message.isUser ? '/images/user-avatar.svg' : '/images/ai-avatar.svg'}
                     alt={message.isUser ? '用户' : 'AI'}
-                    size={{ base: "xs", md: "sm" }}
                   />
-                  <Box
-                    maxW={{ base: "75%", md: "70%" }}
-                    p={{ base: 2, md: 4 }}
-                    borderRadius="lg"
-                    bg={message.isUser ? userBgColor : aiBgColor}
-                    color={message.isUser ? 'white' : 'inherit'}
-                    position="relative"
-                    boxShadow="sm"
-                    borderWidth="1px"
-                    borderColor={borderColor}
-                    fontSize={{ base: "sm", md: "md" }}
+                  <Paper
+                    elevation={1}
+                    sx={{
+                      maxWidth: '70%',
+                      p: 2,
+                      bgcolor: message.isUser ? 'primary.main' : 'background.paper',
+                      color: message.isUser ? 'primary.contrastText' : 'text.primary'
+                    }}
                   >
-                    <Suspense fallback={<Spinner size="sm" />}>
+                    <Suspense fallback={<Typography>加载中...</Typography>}>
                       {renderMessageContent(message.content)}
                     </Suspense>
                     {!message.isUser && (
-                      <Flex justify="flex-end" align="center" mt={2}>
-                        <Tooltip label="复制消息">
+                      <Box sx={{ mt: 1, textAlign: 'right' }}>
+                        <Tooltip title="复制消息">
                           <IconButton
-                            aria-label="复制消息"
-                            icon={<FiCopy />}
-                            size="xs"
-                            variant="ghost"
+                            size="small"
                             onClick={() => handleCopyMessage(message.content)}
-                            color="gray.500"
-                          />
+                            sx={{ color: 'text.secondary' }}
+                          >
+                            <FiCopy />
+                          </IconButton>
                         </Tooltip>
-                      </Flex>
+                      </Box>
                     )}
-                  </Box>
-                </Flex>
+                  </Paper>
+                </Stack>
               ))}
               {isLoading && (
-                <Flex
-                  direction="row"
-                  align="flex-start"
-                  gap={{ base: 2, md: 3 }}
-                >
+                <Stack direction="row" spacing={2} alignItems="flex-start">
                   <LazyImage
                     src="/images/ai-avatar.svg"
                     alt="AI"
-                    size={{ base: "xs", md: "sm" }}
                   />
-                  <Box
-                    maxW={{ base: "75%", md: "70%" }}
-                    p={{ base: 2, md: 4 }}
-                    borderRadius="lg"
-                    bg={aiBgColor}
-                    position="relative"
-                    boxShadow="sm"
-                    borderWidth="1px"
-                    borderColor={borderColor}
-                    fontSize={{ base: "sm", md: "md" }}
+                  <Paper
+                    elevation={1}
+                    sx={{
+                      p: 2,
+                      bgcolor: 'background.paper'
+                    }}
                   >
-                    <Text color="gray.500">正在输入中...</Text>
-                  </Box>
-                </Flex>
+                    <Typography color="text.secondary">
+                      正在输入中...
+                    </Typography>
+                  </Paper>
+                </Stack>
               )}
               <div ref={messagesEndRef} />
-            </VStack>
-          </Box>
+            </Stack>
+          </Paper>
 
-          <Box
-            p={{ base: 2, md: 4 }}
-            bg={useColorModeValue('white', 'gray.800')}
-            borderRadius="lg"
-            boxShadow="sm"
-            transition="background-color 0.2s"
+          {/* 输入框 */}
+          <Paper 
+            elevation={1}
+            sx={{ p: 2 }}
           >
-            <Flex gap={2}>
-              <Input
-                ref={inputRef}
+            <Stack direction="row" spacing={2}>
+              <TextField
+                fullWidth
+                placeholder="输入消息..."
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyPress={e => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
-                placeholder="输入消息..."
-                size={{ base: "md", md: "lg" }}
-                variant="filled"
+                inputRef={inputRef}
+                disabled={isLoading}
               />
               <IconButton
-                aria-label="发送消息"
-                icon={<FiSend />}
+                color="primary"
                 onClick={handleSendMessage}
-                isLoading={isLoading}
-                colorScheme="blue"
-                isDisabled={!input.trim() || isLoading}
-                size={{ base: "md", md: "lg" }}
-              />
-            </Flex>
-          </Box>
+                disabled={!input.trim() || isLoading}
+              >
+                <FiSend />
+              </IconButton>
+            </Stack>
+          </Paper>
 
+          {/* 页脚 */}
           <Box 
-            as="footer"
-            py={4}
-            textAlign="center"
-            borderTop="1px"
-            borderColor={useColorModeValue('gray.200', 'gray.700')}
-            transition="border-color 0.2s"
+            component="footer"
+            sx={{
+              py: 2,
+              textAlign: 'center',
+              borderTop: 1,
+              borderColor: 'divider'
+            }}
           >
-            <Flex justify="center" gap={4} wrap="wrap">
+            <Stack direction="row" spacing={2} justifyContent="center">
               <MuiLink 
                 href="https://xianwenai.com/privacy-policy" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                color={useColorModeValue('gray.600', 'gray.400')} 
-                underline="hover"
+                color="text.secondary"
               >
                 隐私政策
               </MuiLink>
@@ -384,14 +330,13 @@ const Chat: React.FC = () => {
                 href="https://xianwenai.com/terms-of-service" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                color={useColorModeValue('gray.600', 'gray.400')} 
-                underline="hover"
+                color="text.secondary"
               >
                 服务条款
               </MuiLink>
-            </Flex>
+            </Stack>
           </Box>
-        </Flex>
+        </Stack>
       </Container>
     </Box>
   )
