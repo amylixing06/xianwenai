@@ -225,24 +225,6 @@ const Chat: React.FC = () => {
             先问AI
           </Heading>
           <Flex gap={2} align="center">
-            <MuiLink 
-              href="https://xianwenai.com/privacy-policy" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              color={useColorModeValue('gray.600', 'gray.400')} 
-              underline="hover"
-            >
-              隐私政策
-            </MuiLink>
-            <MuiLink 
-              href="https://xianwenai.com/terms-of-service" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              color={useColorModeValue('gray.600', 'gray.400')} 
-              underline="hover"
-            >
-              服务条款
-            </MuiLink>
             <Button
               onClick={toggleColorMode}
               variant="ghost"
@@ -369,6 +351,35 @@ const Chat: React.FC = () => {
               isDisabled={!input.trim() || isLoading}
               size={{ base: "md", md: "lg" }}
             />
+          </Flex>
+        </Box>
+
+        <Box 
+          as="footer"
+          py={4}
+          textAlign="center"
+          borderTop="1px"
+          borderColor={useColorModeValue('gray.200', 'gray.700')}
+        >
+          <Flex justify="center" gap={4} wrap="wrap">
+            <MuiLink 
+              href="https://xianwenai.com/privacy-policy" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              color={useColorModeValue('gray.600', 'gray.400')} 
+              underline="hover"
+            >
+              隐私政策
+            </MuiLink>
+            <MuiLink 
+              href="https://xianwenai.com/terms-of-service" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              color={useColorModeValue('gray.600', 'gray.400')} 
+              underline="hover"
+            >
+              服务条款
+            </MuiLink>
           </Flex>
         </Box>
       </Flex>
