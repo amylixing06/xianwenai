@@ -225,10 +225,22 @@ const Chat: React.FC = () => {
             先问AI
           </Heading>
           <Flex gap={2} align="center">
-            <MuiLink component={RouterLink} to="/privacy.md" color={useColorModeValue('gray.600', 'gray.400')} underline="hover">
+            <MuiLink 
+              href="https://xianwenai.com/privacy-policy" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              color={useColorModeValue('gray.600', 'gray.400')} 
+              underline="hover"
+            >
               隐私政策
             </MuiLink>
-            <MuiLink component={RouterLink} to="/terms.md" color={useColorModeValue('gray.600', 'gray.400')} underline="hover">
+            <MuiLink 
+              href="https://xianwenai.com/terms-of-service" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              color={useColorModeValue('gray.600', 'gray.400')} 
+              underline="hover"
+            >
               服务条款
             </MuiLink>
             <Button
