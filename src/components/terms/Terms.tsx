@@ -1,74 +1,87 @@
 import React from 'react';
-import {
-  Container,
-  Typography,
-  Paper
-} from '@mui/material';
+import { Container, Typography, Paper, Box } from '@mui/material';
 
 const Terms: React.FC = () => {
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Paper elevation={3} sx={{ p: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          服务条款
-        </Typography>
-        
-        <Typography variant="body1" paragraph>
-          最后更新日期：2024年3月
-        </Typography>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', py: 4 }}>
+      <Container maxWidth="md">
+        <Paper elevation={1} sx={{ p: 4 }}>
+          <Typography variant="h4" gutterBottom>
+            服务条款
+          </Typography>
+          <Typography variant="body1" paragraph>
+            最后更新日期：2024年3月1日
+          </Typography>
+          
+          <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+            1. 服务说明
+          </Typography>
+          <Typography variant="body1" paragraph>
+            先问AI提供基于人工智能的对话服务。使用我们的服务即表示您同意本条款。
+          </Typography>
 
-        <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
-          1. 服务说明
-        </Typography>
-        <Typography variant="body1" paragraph>
-          先问AI（以下简称"本服务"）是一个基于人工智能的对话服务。我们致力于为用户提供便捷、智能的对话体验。
-        </Typography>
+          <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+            2. 用户责任
+          </Typography>
+          <Typography variant="body1" paragraph>
+            您同意：
+            - 提供准确的信息
+            - 遵守所有适用法律
+            - 不滥用服务
+            - 保护账户安全
+          </Typography>
 
-        <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
-          2. 使用规则
-        </Typography>
-        <Typography variant="body1" paragraph>
-          用户在使用本服务时应当：
-          - 遵守相关法律法规
-          - 尊重他人权益
-          - 不得利用本服务从事违法活动
-          - 不得干扰服务的正常运行
-        </Typography>
+          <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+            3. 知识产权
+          </Typography>
+          <Typography variant="body1" paragraph>
+            所有内容的知识产权归先问AI所有。您可以在遵守本条款的前提下使用服务。
+          </Typography>
 
-        <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
-          3. 服务变更
-        </Typography>
-        <Typography variant="body1" paragraph>
-          我们保留随时修改或中断服务的权利，恕不另行通知。我们不对因服务变更而导致的任何损失负责。
-        </Typography>
+          <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+            4. 免责声明
+          </Typography>
+          <Typography variant="body1" paragraph>
+            服务按"现状"提供，不提供任何明示或暗示的保证。我们不对服务的准确性、可靠性负责。
+          </Typography>
 
-        <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
-          4. 免责声明
-        </Typography>
-        <Typography variant="body1" paragraph>
-          本服务提供的AI回复仅供参考，不构成任何形式的建议或承诺。用户应当自行判断信息的准确性和适用性。
-        </Typography>
+          <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+            5. 服务变更
+          </Typography>
+          <Typography variant="body1" paragraph>
+            我们保留随时修改或终止服务的权利，恕不另行通知。
+          </Typography>
 
-        <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
-          5. 知识产权
-        </Typography>
-        <Typography variant="body1" paragraph>
-          本服务的所有内容，包括但不限于文字、图片、代码等，均受知识产权法律保护。未经授权，不得复制、修改或使用。
-        </Typography>
+          <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+            6. 责任限制
+          </Typography>
+          <Typography variant="body1" paragraph>
+            在法律允许的最大范围内，我们不对任何直接、间接、附带、特殊或惩罚性损害负责。
+          </Typography>
 
-        <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
-          6. 联系我们
-        </Typography>
-        <Typography variant="body1" paragraph>
-          如果您对本服务条款有任何疑问，请通过以下方式联系我们：
-          - 电子邮件：terms@xianwenai.com
-        </Typography>
+          <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+            7. 争议解决
+          </Typography>
+          <Typography variant="body1" paragraph>
+            任何争议应通过友好协商解决。如无法达成一致，应提交至有管辖权的法院。
+          </Typography>
 
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 4 }}>
-          本服务条款可能会不时更新。我们会在条款更新时通知您。
-        </Typography>
-      </Paper>
-    </Container>
+          <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+            8. 条款更新
+          </Typography>
+          <Typography variant="body1" paragraph>
+            我们可能更新本条款。继续使用服务即表示您接受更新后的条款。
+          </Typography>
+
+          <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+            9. 联系我们
+          </Typography>
+          <Typography variant="body1" paragraph>
+            如有任何问题，请联系：terms@xianwenai.com
+          </Typography>
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 
