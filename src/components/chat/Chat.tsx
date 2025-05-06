@@ -208,182 +208,192 @@ const Chat: React.FC = () => {
   }
 
   return (
-    <Container maxW="container.xl" h="100vh" p={{ base: 2, md: 4 }}>
-      <Flex direction="column" h="full">
-        <Box 
-          py={{ base: 2, md: 4 }}
-          px={{ base: 3, md: 6 }}
-          bg={useColorModeValue('white', 'gray.800')}
-          borderRadius="lg"
-          boxShadow="sm"
-          mb={{ base: 2, md: 4 }}
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-        >
-          <Heading size={{ base: "md", md: "lg" }} color={useColorModeValue('blue.500', 'blue.300')}>
-            先问AI
-          </Heading>
-          <Flex gap={2} align="center">
-            <Button
-              onClick={toggleColorMode}
-              variant="ghost"
-              colorScheme="blue"
-              leftIcon={colorMode === 'light' ? <FiMoon /> : <FiSun />}
-              size={{ base: "sm", md: "md" }}
-            >
-              <Text>{colorMode === 'light' ? '深色模式' : '浅色模式'}</Text>
-            </Button>
-          </Flex>
-        </Box>
-
-        <Box 
-          flex="1" 
-          overflowY="auto" 
-          mb={{ base: 2, md: 4 }}
-          bg={useColorModeValue('gray.50', 'gray.900')}
-          borderRadius="lg"
-          p={{ base: 2, md: 4 }}
-        >
-          <VStack spacing={{ base: 2, md: 4 }} align="stretch">
-            {error && (
-              <Alert status="error" borderRadius="md">
-                <AlertIcon />
-                {error}
-              </Alert>
-            )}
-            {messages.map(message => (
-              <Flex
-                key={message.id}
-                direction={message.isUser ? 'row-reverse' : 'row'}
-                align="flex-start"
-                gap={{ base: 2, md: 3 }}
+    <Box 
+      minH="100vh"
+      bg={useColorModeValue('gray.50', 'gray.900')}
+      transition="background-color 0.2s"
+    >
+      <Container maxW="container.xl" h="100vh" p={{ base: 2, md: 4 }}>
+        <Flex direction="column" h="full">
+          <Box 
+            py={{ base: 2, md: 4 }}
+            px={{ base: 3, md: 6 }}
+            bg={useColorModeValue('white', 'gray.800')}
+            borderRadius="lg"
+            boxShadow="sm"
+            mb={{ base: 2, md: 4 }}
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            transition="background-color 0.2s"
+          >
+            <Heading size={{ base: "md", md: "lg" }} color={useColorModeValue('blue.500', 'blue.300')}>
+              先问AI
+            </Heading>
+            <Flex gap={2} align="center">
+              <Button
+                onClick={toggleColorMode}
+                variant="ghost"
+                colorScheme="blue"
+                leftIcon={colorMode === 'light' ? <FiMoon /> : <FiSun />}
+                size={{ base: "sm", md: "md" }}
               >
-                <LazyImage
-                  src={message.isUser ? '/images/user-avatar.svg' : '/images/ai-avatar.svg'}
-                  alt={message.isUser ? '用户' : 'AI'}
-                  size={{ base: "xs", md: "sm" }}
-                />
-                <Box
-                  maxW={{ base: "75%", md: "70%" }}
-                  p={{ base: 2, md: 4 }}
-                  borderRadius="lg"
-                  bg={message.isUser ? userBgColor : aiBgColor}
-                  color={message.isUser ? 'white' : 'inherit'}
-                  position="relative"
-                  boxShadow="sm"
-                  borderWidth="1px"
-                  borderColor={borderColor}
-                  fontSize={{ base: "sm", md: "md" }}
+                <Text>{colorMode === 'light' ? '深色模式' : '浅色模式'}</Text>
+              </Button>
+            </Flex>
+          </Box>
+
+          <Box 
+            flex="1" 
+            overflowY="auto" 
+            mb={{ base: 2, md: 4 }}
+            bg={useColorModeValue('white', 'gray.800')}
+            borderRadius="lg"
+            p={{ base: 2, md: 4 }}
+            transition="background-color 0.2s"
+          >
+            <VStack spacing={{ base: 2, md: 4 }} align="stretch">
+              {error && (
+                <Alert status="error" borderRadius="md">
+                  <AlertIcon />
+                  {error}
+                </Alert>
+              )}
+              {messages.map(message => (
+                <Flex
+                  key={message.id}
+                  direction={message.isUser ? 'row-reverse' : 'row'}
+                  align="flex-start"
+                  gap={{ base: 2, md: 3 }}
                 >
-                  <Suspense fallback={<Spinner size="sm" />}>
-                    {renderMessageContent(message.content)}
-                  </Suspense>
-                  {!message.isUser && (
-                    <Flex justify="flex-end" align="center" mt={2}>
-                      <Tooltip label="复制消息">
-                        <IconButton
-                          aria-label="复制消息"
-                          icon={<FiCopy />}
-                          size="xs"
-                          variant="ghost"
-                          onClick={() => handleCopyMessage(message.content)}
-                          color="gray.500"
-                        />
-                      </Tooltip>
-                    </Flex>
-                  )}
-                </Box>
-              </Flex>
-            ))}
-            {isLoading && (
-              <Flex
-                direction="row"
-                align="flex-start"
-                gap={{ base: 2, md: 3 }}
+                  <LazyImage
+                    src={message.isUser ? '/images/user-avatar.svg' : '/images/ai-avatar.svg'}
+                    alt={message.isUser ? '用户' : 'AI'}
+                    size={{ base: "xs", md: "sm" }}
+                  />
+                  <Box
+                    maxW={{ base: "75%", md: "70%" }}
+                    p={{ base: 2, md: 4 }}
+                    borderRadius="lg"
+                    bg={message.isUser ? userBgColor : aiBgColor}
+                    color={message.isUser ? 'white' : 'inherit'}
+                    position="relative"
+                    boxShadow="sm"
+                    borderWidth="1px"
+                    borderColor={borderColor}
+                    fontSize={{ base: "sm", md: "md" }}
+                  >
+                    <Suspense fallback={<Spinner size="sm" />}>
+                      {renderMessageContent(message.content)}
+                    </Suspense>
+                    {!message.isUser && (
+                      <Flex justify="flex-end" align="center" mt={2}>
+                        <Tooltip label="复制消息">
+                          <IconButton
+                            aria-label="复制消息"
+                            icon={<FiCopy />}
+                            size="xs"
+                            variant="ghost"
+                            onClick={() => handleCopyMessage(message.content)}
+                            color="gray.500"
+                          />
+                        </Tooltip>
+                      </Flex>
+                    )}
+                  </Box>
+                </Flex>
+              ))}
+              {isLoading && (
+                <Flex
+                  direction="row"
+                  align="flex-start"
+                  gap={{ base: 2, md: 3 }}
+                >
+                  <LazyImage
+                    src="/images/ai-avatar.svg"
+                    alt="AI"
+                    size={{ base: "xs", md: "sm" }}
+                  />
+                  <Box
+                    maxW={{ base: "75%", md: "70%" }}
+                    p={{ base: 2, md: 4 }}
+                    borderRadius="lg"
+                    bg={aiBgColor}
+                    position="relative"
+                    boxShadow="sm"
+                    borderWidth="1px"
+                    borderColor={borderColor}
+                    fontSize={{ base: "sm", md: "md" }}
+                  >
+                    <Text color="gray.500">正在输入中...</Text>
+                  </Box>
+                </Flex>
+              )}
+              <div ref={messagesEndRef} />
+            </VStack>
+          </Box>
+
+          <Box
+            p={{ base: 2, md: 4 }}
+            bg={useColorModeValue('white', 'gray.800')}
+            borderRadius="lg"
+            boxShadow="sm"
+            transition="background-color 0.2s"
+          >
+            <Flex gap={2}>
+              <Input
+                ref={inputRef}
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyPress={e => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
+                placeholder="输入消息..."
+                size={{ base: "md", md: "lg" }}
+                variant="filled"
+              />
+              <IconButton
+                aria-label="发送消息"
+                icon={<FiSend />}
+                onClick={handleSendMessage}
+                isLoading={isLoading}
+                colorScheme="blue"
+                isDisabled={!input.trim() || isLoading}
+                size={{ base: "md", md: "lg" }}
+              />
+            </Flex>
+          </Box>
+
+          <Box 
+            as="footer"
+            py={4}
+            textAlign="center"
+            borderTop="1px"
+            borderColor={useColorModeValue('gray.200', 'gray.700')}
+            transition="border-color 0.2s"
+          >
+            <Flex justify="center" gap={4} wrap="wrap">
+              <MuiLink 
+                href="https://xianwenai.com/privacy-policy" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                color={useColorModeValue('gray.600', 'gray.400')} 
+                underline="hover"
               >
-                <LazyImage
-                  src="/images/ai-avatar.svg"
-                  alt="AI"
-                  size={{ base: "xs", md: "sm" }}
-                />
-                <Box
-                  maxW={{ base: "75%", md: "70%" }}
-                  p={{ base: 2, md: 4 }}
-                  borderRadius="lg"
-                  bg={aiBgColor}
-                  position="relative"
-                  boxShadow="sm"
-                  borderWidth="1px"
-                  borderColor={borderColor}
-                  fontSize={{ base: "sm", md: "md" }}
-                >
-                  <Text color="gray.500">正在输入中...</Text>
-                </Box>
-              </Flex>
-            )}
-            <div ref={messagesEndRef} />
-          </VStack>
-        </Box>
-
-        <Box
-          p={{ base: 2, md: 4 }}
-          bg={useColorModeValue('white', 'gray.800')}
-          borderRadius="lg"
-          boxShadow="sm"
-        >
-          <Flex gap={2}>
-            <Input
-              ref={inputRef}
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyPress={e => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
-              placeholder="输入消息..."
-              size={{ base: "md", md: "lg" }}
-              variant="filled"
-            />
-            <IconButton
-              aria-label="发送消息"
-              icon={<FiSend />}
-              onClick={handleSendMessage}
-              isLoading={isLoading}
-              colorScheme="blue"
-              isDisabled={!input.trim() || isLoading}
-              size={{ base: "md", md: "lg" }}
-            />
-          </Flex>
-        </Box>
-
-        <Box 
-          as="footer"
-          py={4}
-          textAlign="center"
-          borderTop="1px"
-          borderColor={useColorModeValue('gray.200', 'gray.700')}
-        >
-          <Flex justify="center" gap={4} wrap="wrap">
-            <MuiLink 
-              href="https://xianwenai.com/privacy-policy" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              color={useColorModeValue('gray.600', 'gray.400')} 
-              underline="hover"
-            >
-              隐私政策
-            </MuiLink>
-            <MuiLink 
-              href="https://xianwenai.com/terms-of-service" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              color={useColorModeValue('gray.600', 'gray.400')} 
-              underline="hover"
-            >
-              服务条款
-            </MuiLink>
-          </Flex>
-        </Box>
-      </Flex>
-    </Container>
+                隐私政策
+              </MuiLink>
+              <MuiLink 
+                href="https://xianwenai.com/terms-of-service" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                color={useColorModeValue('gray.600', 'gray.400')} 
+                underline="hover"
+              >
+                服务条款
+              </MuiLink>
+            </Flex>
+          </Box>
+        </Flex>
+      </Container>
+    </Box>
   )
 }
 
