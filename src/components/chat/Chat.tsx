@@ -28,6 +28,7 @@ import { Message } from '@/types'
 import useSound from 'use-sound'
 import messageSound from '/sounds/message.mp3'
 import { Link as RouterLink } from 'react-router-dom'
+import { Link as MuiLink } from '@mui/material'
 
 // 动态导入 ReactMarkdown
 const ReactMarkdown = React.lazy(() => import('react-markdown'))
@@ -224,9 +225,12 @@ const Chat: React.FC = () => {
             先问AI
           </Heading>
           <Flex gap={2} align="center">
-            <Link as={RouterLink} to="/privacy" fontSize="sm" color={useColorModeValue('gray.600', 'gray.400')}>
+            <MuiLink component={RouterLink} to="/privacy" color={useColorModeValue('gray.600', 'gray.400')} underline="hover">
               隐私政策
-            </Link>
+            </MuiLink>
+            <MuiLink component={RouterLink} to="/terms" color={useColorModeValue('gray.600', 'gray.400')} underline="hover">
+              服务条款
+            </MuiLink>
             <Button
               onClick={toggleColorMode}
               variant="ghost"

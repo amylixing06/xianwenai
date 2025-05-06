@@ -1,20 +1,24 @@
 import React from 'react'
-import { ChakraProvider } from '@chakra-ui/react'
+import { ThemeProvider } from '@mui/material/styles'
+import CssBaseline from '@mui/material/CssBaseline'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import { theme } from './theme'
+import theme from './theme'
 import Chat from './components/chat/Chat'
 import Privacy from './components/privacy/Privacy'
+import Terms from './components/terms/Terms'
 
 const App: React.FC = () => {
   return (
-    <ChakraProvider theme={theme}>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
       <Router>
         <Routes>
           <Route path="/" element={<Chat />} />
           <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
         </Routes>
       </Router>
-    </ChakraProvider>
+    </ThemeProvider>
   )
 }
 
